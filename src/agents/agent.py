@@ -1,4 +1,5 @@
-from core.memory_core import MemoryCore
+from core.memory_core import MemoryCore  # type: ignore[import]
+
 
 class Agent:
     def __init__(self):
