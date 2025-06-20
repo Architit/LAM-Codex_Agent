@@ -1,0 +1,6 @@
+from typing import Protocol
+
+
+class AgentProtocol(Protocol):
+    def handle_inbound(self, data: dict) -> None: ...
+    def send_outbound(self, data: dict) -> bool: ...
