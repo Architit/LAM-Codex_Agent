@@ -1,25 +1,36 @@
-"""Codex-agent standalone launcher."""
+"""
+LAM Codex-agent standalone launcher.
 
-from __future__ import annotations
+Запускает Codex-агент из подмодуля и делает shim,
+чтобы его импорт «agents.com_agent» не падал.
+"""
 
+from pathlib import Path
+import importlib
 import sys
 import types
-from pathlib import Path
 
-# ── добавляем путь к Communication-agent ────────────────────────────
-BASE = Path(__file__).resolve().parents[3]        # …/LAM
-COMM_SRC = BASE / "LAM/default/agents/comm-agent/src"
-sys.path.insert(0, str(COMM_SRC))
+# ───────────────────────────────────────────────────────────────────────────────
+# Пути к src-папкам обоих агентов
+# <repo>/LAM
+ROOT = Path(__file__).resolve().parents[2]           # ← корень репозитория
 
-# ── создаём псевдонимы, чтобы импорты не падали ─────────────────────
-from interfaces import com_agent_interface as _com_mod  # type: ignore
+COMM_SRC = ROOT / "LAM" / "default" / "agents" / "comm-agent" / "src"
+CODEX_SRC = ROOT / "LAM" / "default" / "agents" / "codex-agent" / "src"
+sys.path.insert(0, str(COMM_SRC))  # comm-agent первым
+sys.path.insert(0, str(CODEX_SRC))  # codex-agent вторым
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Шим: agents.com_agent → настоящий ComAgent
+from interfaces import com_agent_interface as _com_mod  # type: ignore  # noqa: E402
 
 sys.modules["com_agent"] = _com_mod
 sys.modules["agents"] = types.ModuleType("agents")
 sys.modules["agents.com_agent"] = _com_mod
 
-# ── Codex agent ─────────────────────────────────────────────────────
-from codex_agent.core import Core
+# ───────────────────────────────────────────────────────────────────────────────
+# Codex-agent
+from codex_agent.core import Core  # noqa: E402
 
 
 def main() -> None:
