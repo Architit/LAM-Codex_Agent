@@ -1,35 +1,19 @@
-"""
-LAM Codex-agent standalone launcher.
-
-Запускает Codex-агент из подмодуля и делает shim,
-чтобы его импорт «agents.com_agent» не падал.
-"""
-
 from pathlib import Path
-import importlib
 import sys
 import types
 
-# ───────────────────────────────────────────────────────────────────────────────
-# Пути к src-папкам обоих агентов
-# <repo>/LAM
-ROOT = Path(__file__).resolve().parents[2]           # ← корень репозитория
+# ── добавляем пути к исходникам подмодулей ─────────────────────────────────────
+BASE = Path(__file__).resolve().parents[3]             # .../LAM
+COMM_SRC  = BASE / "LAM/default/agents/comm-agent/src"
+CODEX_SRC = BASE / "LAM/default/agents/codex-agent/src"
+sys.path.extend([str(COMM_SRC), str(CODEX_SRC)])
 
-COMM_SRC = ROOT / "LAM" / "default" / "agents" / "comm-agent" / "src"
-CODEX_SRC = ROOT / "LAM" / "default" / "agents" / "codex-agent" / "src"
-sys.path.insert(0, str(COMM_SRC))  # comm-agent первым
-sys.path.insert(0, str(CODEX_SRC))  # codex-agent вторым
-
-# ───────────────────────────────────────────────────────────────────────────────
-# Шим: agents.com_agent → настоящий ComAgent
+# ── делаем псевдоним, чтобы import "agents.com_agent" внутри Codex не падал ───
 from interfaces import com_agent_interface as _com_mod  # type: ignore  # noqa: E402
-
-sys.modules["com_agent"] = _com_mod
 sys.modules["agents"] = types.ModuleType("agents")
 sys.modules["agents.com_agent"] = _com_mod
 
-# ───────────────────────────────────────────────────────────────────────────────
-# Codex-agent
+# ── основной кодекс-агент ─────────────────────────────────────────────────────
 from codex_agent.core import Core  # noqa: E402
 
 
