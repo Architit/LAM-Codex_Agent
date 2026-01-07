@@ -41,5 +41,5 @@ python -m codex_agent ping
 ```powershell
 ruff src/
 mypy src/
-pytest tests/
+pytest tests/  # expects `lam-codex-agent` on PATH (pip install -e .)
 ```
