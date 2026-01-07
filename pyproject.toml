@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lam-codex-agent"
+version = "0.1.0"
+description = "Local Codex agent scaffold for LAM"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Kyrylo Liapustin", email = "lkises01@gmail.com" }]
+dependencies = []
+
+[project.scripts]
+lam-codex-agent = "codex_agent.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

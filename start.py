@@ -1,23 +1,22 @@
 from pathlib import Path
 import sys
-import types
 
-# ─── путь к src комм-агента (если скрипт запускают отдельно) ──────────────────
-AGENTS_DIR = Path(__file__).resolve().parents[2]            # …/default/agents
-COMM_SRC = AGENTS_DIR / "comm-agent" / "src"
-sys.path.append(str(COMM_SRC))
+PROJECT_ROOT = Path(__file__).resolve().parent
+SRC_DIR = PROJECT_ROOT / "src"
+if SRC_DIR.exists():
+    sys.path.insert(0, str(SRC_DIR))
 
-# ─── псевдоним для внутреннего import'а codex-агента ──────────────────────────
-from interfaces import com_agent_interface as _com_mod  # noqa: E402
-sys.modules.setdefault("agents", types.ModuleType("agents"))
-sys.modules["agents.com_agent"] = _com_mod
+# Optional support for a sibling comm-agent repo if present.
+COMM_SRC = PROJECT_ROOT.parent / "comm-agent" / "src"
+if COMM_SRC.exists():
+    sys.path.insert(0, str(COMM_SRC))
 
-from codex_agent.core import Core  # noqa: E402
+from codex_agent.core import Core
 
 
 def main() -> None:
     agent = Core()
-    print(agent.answer("Codex Agent стартовал"))
+    print(agent.answer("Codex Agent starting"))
 
 
 if __name__ == "__main__":
