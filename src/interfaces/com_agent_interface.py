@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+# Forward import of actual ComAgent class for convenience
+from agents.com_agent import ComAgent
+
 class ComAgentInterface(ABC):
     """
     Интерфейс Агента Связи (Communication Agent).

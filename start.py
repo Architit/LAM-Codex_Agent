@@ -2,6 +2,10 @@ from pathlib import Path
 import sys
 import types
 
+# ─── путь к текущей src директории codex-агента ──────────────────────────────
+SRC_DIR = Path(__file__).resolve().parent / "src"
+sys.path.append(str(SRC_DIR))
+
 # ─── путь к src комм-агента (если скрипт запускают отдельно) ──────────────────
 AGENTS_DIR = Path(__file__).resolve().parents[2]            # …/default/agents
 COMM_SRC = AGENTS_DIR / "comm-agent" / "src"
