@@ -1,120 +1,45 @@
-```markdown
-# 🧠 LAM-Codex_Agent
+# LAM-Codex_Agent
 
-**Codex-агент** — это специализированный исполнитель для работы с кодом в экосистеме **LAM (Living Architectonic Mind)**.  
-Он принимает промпты, генерирует, исполняет и валидирует код, формируя отклики, пригодные для включения в живую архитектуру системы.
+Small local scaffold for a Codex-style agent in the LAM ecosystem. Provides a
+minimal Core with a simple answer method and optional bridge stubs.
 
----
+## Structure
 
-## 🎯 Назначение
+- `src/codex_agent/`: Core, protocols, integrations, CLI
+- `src/agents/`: stub agents
+- `src/core/`: memory core
+- `start.py`: local launcher (adds `src` to `PYTHONPATH`)
+- `reqs/requirements.txt`: dev tools
+- `tests/`: placeholders
 
-- Генерация и редактирование кода (Python, Bash, Docker, HTML и др.)
-- Запуск сценариев локально или в песочнице
-- Тестирование функций и логики через `pytest`, `mypy`, `ruff`
-- Работа по промптам от других агентов (например, LAM-Core, Archivator)
-- Ведение журналов исполнения и возврат данных в формате LAM
+## Quick start (Windows)
 
----
-
-## 🧩 Архитектура
-
-```
-
-LAM-Codex\_Agent/
-├── README.md                # Текущий файл
-├── .gitignore               # Исключения
-├── LICENSE                  # MIT License
-├── prompts/                 # Шаблоны и реальные промпты
-│   └── example.task.md      # Примеры задач
-├── src/
-│   └── agent/
-│       ├── **init**.py
-│       ├── core.py          # Главная логика обработки
-│       ├── executor.py      # Запуск кода
-│       └── formatter.py     # Преобразование данных
-├── tests/
-│   └── test\_sanity.py       # Первичный тест
-└── requirements.txt         # Зависимости
-
-````
-
----
-
-## 🛠 Установка и запуск
-
-```bash
-# Клонируй репозиторий
-git clone https://github.com/<твое_имя>/LAM-Codex_Agent.git
-cd LAM-Codex_Agent
-
-# Создай виртуальное окружение
-python -m venv venv
-source venv/bin/activate  # или venv\Scripts\activate на Windows
-
-# Установи зависимости
+```powershell
+python -m venv .venv
+.\.venv\Scripts\activate
 pip install -r requirements.txt
-
-# Запусти тест
-pytest -q
-````
-
----
-
-## 📤 Использование
-
-```python
-from agent.core import handle_prompt
-
-prompt = "Создай функцию, которая сортирует список строк по длине."
-result = handle_prompt(prompt)
-print(result.code)
+python start.py
 ```
 
----
+## Install as a package (editable)
 
-## 📡 Взаимодействие с системой LAM
+```powershell
+pip install -e .
+lam-codex-agent ping
+python -m codex_agent ping
+```
 
-Codex\_Agent может вызываться:
+## Notes
 
-* напрямую из других агентов LAM (например, Archivator)
-* вручную через CLI (`python -m agent.cli`)
-* через HTTP-интерфейс (планируется)
+- `start.py` will also add a sibling `../comm-agent/src` to `PYTHONPATH` if it
+  exists, so integration stubs can be resolved locally.
+- `Core.answer("ping")` returns `{"reply": "pong"}`; other messages return
+  `{"reply": "Processed: <message>"}`.
 
----
+## Dev tools
 
-## 🧪 Тесты и стиль
-
-* Линтер: `ruff`
-* Типизация: `mypy`
-* Форматтер: `black`
-* Тесты: `pytest`
-
-Запуск:
-
-```bash
+```powershell
 ruff src/
 mypy src/
-pytest tests/
-```
-
----
-
-## 📄 Лицензия
-
-MIT © [Kyrylo Liapustin](mailto:lkises01@gmail.com)
-
----
-
-```
-
----
-
-Если хочешь, могу сразу сгенерировать:
-
-- `requirements.txt` с зависимостями
-- `src/agent/core.py` с заготовкой для функции `handle_prompt()`
-- `example.task.md` в папке `prompts/`
-
-⚡ Просто скажи:  
-> «Создай основу агента Codex» — и мы начнем формировать структуру по папкам.
+pytest tests/  # expects `lam-codex-agent` on PATH (pip install -e .)
 ```
