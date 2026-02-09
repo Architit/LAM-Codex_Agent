@@ -20,7 +20,7 @@ class Core:
         self.name = name
 
     # ────────────────────────────────────────────────────────────────
-    def answer(self, data: str | Dict[str, Any]) -> Dict[str, str]:
+    def answer(self, data: str | Dict[str, Any]) -> Dict[str, Any]:
         """
         Возвращает ответ в формате ``{"reply": <…>}``.
 
@@ -28,17 +28,38 @@ class Core:
         • иначе → ``{"reply": "Processed: <исходный текст>"}``.
 
         ``data`` может быть строкой или словарём вида ``{"msg": "<текст>"}``.
+
+        Phase 1 (Contracts rollout):
+        - если вход — payload dict, возвращаем Envelope Standard v1
+          (status/context/result/error/metrics).
+        - если вход — строка, сохраняем legacy-формат {"reply": ...}.
         """
+        input_is_payload = isinstance(data, dict)
+
         # поддерживаем оба формата входа
-        if isinstance(data, dict) and "msg" in data:
+        if input_is_payload and "msg" in data:
             msg = str(data["msg"])
         else:
             msg = str(data)
 
         if msg.strip().lower() == "ping":
-            return {"reply": "pong"}
+            reply: Dict[str, Any] = {"reply": "pong"}
+        else:
+            reply = {"reply": f"Processed: {msg}"}
 
-        return {"reply": f"Processed: {msg}"}
+        if input_is_payload:
+            ctx = data.get("context") if isinstance(data, dict) else None
+            if not isinstance(ctx, dict):
+                ctx = {}
+            return {
+                "status": "ok",
+                "context": ctx,
+                "result": reply,
+                "error": None,
+                "metrics": {},
+            }
+
+        return reply
 
     # ────────────────────────────────────────────────────────────────
     def __repr__(self) -> str:  # для удобного вывода
