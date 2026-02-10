@@ -1,41 +1,36 @@
-from abc import ABC, abstractmethod
-from typing import Any
+from __future__ import annotations
 
-# Forward import of actual ComAgent class for convenience
-from agents.com_agent import ComAgent
+from abc import ABC, abstractmethod
+from typing import Any, Protocol, runtime_checkable
+
+
+@runtime_checkable
+class ComAgent(Protocol):
+    """
+    Contract for comm-agent queue API.
+
+    NOTE: Do NOT import comm-agent implementation here.
+    This is a structural contract used across agent repos.
+    """
+
+    def register_agent(self, name: str, agent: Any) -> None: ...
+    def send_data(self, recipient: str, data: Any) -> bool: ...
+    def receive_data(self) -> tuple[str, Any]: ...
+
 
 class ComAgentInterface(ABC):
     """
     Интерфейс Агента Связи (Communication Agent).
-
-    Агент связи отвечает за коммуникацию между агентами и ядром системы.
     """
 
     @abstractmethod
     def establish_connection(self, endpoint: str) -> bool:
-        """
-        Устанавливает соединение с указанной конечной точкой.
-
-        :param endpoint: Адрес конечной точки.
-        :return: Статус успешности соединения.
-        """
         pass
 
     @abstractmethod
     def send_data(self, data: Any) -> bool:
-        """
-        Отправляет данные на конечную точку.
-
-        :param data: Данные для отправки.
-        :return: Статус успешности отправки.
-        """
         pass
 
     @abstractmethod
     def receive_data(self) -> Any:
-        """
-        Получает данные от конечной точки.
-
-        :return: Полученные данные.
-        """
         pass
