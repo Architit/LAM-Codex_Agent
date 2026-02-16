@@ -58,7 +58,9 @@ $env:GEMINI_API_KEY="YOUR_KEY"
 Quick use:
 
 ```powershell
+python flash_brain.py "сырая мысль для гибернации"
 python flash_brain.py ask "сделай скелет модуля памяти для LAM"
+python flash_brain.py hibernate "Я чувствую пустоту, но хочу формализовать ее как null-pointer"
 python flash_brain.py ask --prompt-file .\notes\idea.txt --save .\drafts\idea.flash.md
 python flash_brain.py offload --input-dir .\notes\inbox --output-dir .\notes\outbox
 ```
@@ -66,3 +68,4 @@ python flash_brain.py offload --input-dir .\notes\inbox --output-dir .\notes\out
 Notes:
 - Default model fallback chain: `gemini-3-flash,gemini-2.5-flash`
 - Override with `--models` or env `GEMINI_FLASH_MODELS`
+- `hibernate` mode auto-saves output to `drafts/*.md`

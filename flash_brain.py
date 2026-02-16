@@ -2,8 +2,10 @@
 """Fast Gemini CLI bridge for low-friction async cognitive offloading.
 
 Usage examples:
+  python flash_brain.py "сырая мысль для гибернации"
   python flash_brain.py ask "сделай скелет модуля памяти для LAM"
   python flash_brain.py ask --prompt-file notes/raw.txt --save drafts/memory_skeleton.md
+  python flash_brain.py hibernate "Я чувствую пустоту, но хочу формализовать ее как null-pointer"
   python flash_brain.py offload --input-dir notes/inbox --output-dir notes/outbox
 """
 
@@ -11,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Iterable
@@ -19,6 +22,12 @@ DEFAULT_MODEL_CHAIN = ("gemini-3-flash", "gemini-2.5-flash")
 DEFAULT_SYSTEM_PROMPT = (
     "You are Fast-Thought assistant for asynchronous development. "
     "Transform rough notes into concise, implementation-ready drafts."
+)
+DEFAULT_HIBERNATION_CONTEXT = (
+    "Ты - часть системы LAM (Living Artificial Machine). "
+    "Принимай сырые, хаотичные мысли Архитектора и преобразуй их в "
+    "технические концепты, кодовые черновики или документацию. "
+    "Контекст: RADRILONIUMA, архитектура экосистемы, асинхронная разработка."
 )
 
 
@@ -100,6 +109,12 @@ def _read_prompt(args: argparse.Namespace) -> str:
     raise RuntimeError("Prompt is empty. Use positional prompt, --prompt-file, or stdin.")
 
 
+def _slug(value: str, limit: int = 40) -> str:
+    cleaned = re.sub(r"\s+", "_", value.strip())
+    cleaned = re.sub(r"[^0-9A-Za-z_-]+", "", cleaned)
+    return (cleaned[:limit] or "thought_dump").strip("_") or "thought_dump"
+
+
 def cmd_ask(args: argparse.Namespace) -> int:
     prompt = _read_prompt(args)
     models = _resolve_models(args.models)
@@ -162,6 +177,32 @@ def cmd_offload(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_hibernate(args: argparse.Namespace) -> int:
+    prompt = _read_prompt(args)
+    models = _resolve_models(args.models)
+    full_prompt = (
+        f"{args.context}\n\n"
+        "Сформируй ответ в секциях: summary, technical_mapping, next_actions, draft_artifact.\n\n"
+        f"USER_THOUGHT:\n{prompt}"
+    )
+    model_used, text = _generate_text(
+        prompt=full_prompt,
+        models=models,
+        system_prompt=args.system,
+        temperature=args.temperature,
+        max_output_tokens=args.max_output_tokens,
+    )
+
+    out_dir = Path(args.output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_file = out_dir / f"{_slug(prompt)}.md"
+    out_file.write_text(f"[model: {model_used}]\n\n{text}\n", encoding="utf-8")
+
+    print(f"Saved: {out_file}")
+    print(f"[model: {model_used}]")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Gemini Flash bridge for LAM-Codex_Agent")
     parser.add_argument(
@@ -195,6 +236,24 @@ def build_parser() -> argparse.ArgumentParser:
     ask.add_argument("--save", help="Write output to file instead of stdout")
     ask.set_defaults(func=cmd_ask)
 
+    hibernate = sub.add_parser(
+        "hibernate",
+        help="One-line low-energy mode with auto-save to drafts/",
+    )
+    hibernate.add_argument("prompt", nargs="?", help="Raw thought text")
+    hibernate.add_argument("--prompt-file", help="Path to file with raw thought")
+    hibernate.add_argument(
+        "--output-dir",
+        default="drafts",
+        help="Directory for generated hibernation artifacts",
+    )
+    hibernate.add_argument(
+        "--context",
+        default=DEFAULT_HIBERNATION_CONTEXT,
+        help="Context prepended to user thought",
+    )
+    hibernate.set_defaults(func=cmd_hibernate)
+
     offload = sub.add_parser(
         "offload",
         help="Batch-process notes/logs into structured drafts",
@@ -212,6 +271,13 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
+    # Backward-compatible shortcut:
+    # `python flash_brain.py "raw thought"` -> hibernate mode.
+    if len(sys.argv) > 1:
+        known = {"ask", "offload", "hibernate", "-h", "--help"}
+        if sys.argv[1] not in known and not sys.argv[1].startswith("-"):
+            sys.argv.insert(1, "hibernate")
+
     parser = build_parser()
     args = parser.parse_args()
     try:
