@@ -43,3 +43,26 @@ ruff src/
 mypy src/
 pytest tests/  # expects `lam-codex-agent` on PATH (pip install -e .)
 ```
+
+## Gemini Flash Bridge (`flash_brain.py`)
+
+Fast CLI for low-friction prompts and async note offloading.
+
+Setup:
+
+```powershell
+pip install -q -U google-genai
+$env:GEMINI_API_KEY="YOUR_KEY"
+```
+
+Quick use:
+
+```powershell
+python flash_brain.py ask "сделай скелет модуля памяти для LAM"
+python flash_brain.py ask --prompt-file .\notes\idea.txt --save .\drafts\idea.flash.md
+python flash_brain.py offload --input-dir .\notes\inbox --output-dir .\notes\outbox
+```
+
+Notes:
+- Default model fallback chain: `gemini-3-flash,gemini-2.5-flash`
+- Override with `--models` or env `GEMINI_FLASH_MODELS`
