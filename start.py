@@ -11,7 +11,7 @@ COMM_SRC = PROJECT_ROOT.parent / "comm-agent" / "src"
 if COMM_SRC.exists():
     sys.path.insert(0, str(COMM_SRC))
 
-from codex_agent.core import Core
+from codex_agent.core import Core  # noqa: E402
 
 
 def main() -> None:
