@@ -244,7 +244,15 @@ def _receipt_template() -> dict[str, Any]:
     }
 
 
-def prepare_support_pack(input_log: Path, out_dir: Path, max_incidents: int = 200) -> dict[str, Path]:
+def prepare_support_pack(
+    input_log: Path,
+    out_dir: Path,
+    max_incidents: int = 200,
+    allow_empty_input: bool = False,
+) -> dict[str, Path]:
+    if not input_log.exists() and not allow_empty_input:
+        raise FileNotFoundError(f"debug input log not found: {input_log}")
+
     out_dir.mkdir(parents=True, exist_ok=True)
     bundle = build_feedback_bundle(input_log, max_incidents=max_incidents)
 
@@ -297,8 +305,8 @@ def verify_support_receipt(path: Path, max_age_hours: int = 168) -> list[str]:
 
     if str(doc.get("schema_version", "")) != "1.0":
         errors.append("schema_version must be 1.0")
-    if str(doc.get("status", "")).strip() == "":
-        errors.append("status must be non-empty")
+    if str(doc.get("status", "")).strip() != "MANUAL_SUBMISSION_CONFIRMED":
+        errors.append("status must equal MANUAL_SUBMISSION_CONFIRMED")
     if not isinstance(evidence, dict):
         errors.append("evidence must be object")
         evidence = {}
@@ -309,6 +317,15 @@ def verify_support_receipt(path: Path, max_age_hours: int = 168) -> list[str]:
     case_id = str(evidence.get("case_id", "")).strip()
     if not case_id or case_id == "YOUR_TICKET_ID_HERE":
         errors.append("evidence.case_id must be a real non-empty ticket id")
+
+    attachments = evidence.get("attachments_included")
+    if not isinstance(attachments, list):
+        errors.append("evidence.attachments_included must be list")
+        attachments = []
+    required = {"OPENAI_FEEDBACK_BUNDLE.json", "OPENAI_FEEDBACK_BUNDLE.md"}
+    missing_required = sorted(required.difference({str(x) for x in attachments}))
+    if missing_required:
+        errors.append(f"evidence.attachments_included missing required: {', '.join(missing_required)}")
 
     if signoff.get("acknowledged") is not True:
         errors.append("operator_signoff.acknowledged must be true")
@@ -334,6 +351,7 @@ def main_feedback(argv: list[str]) -> int:
     p_prepare.add_argument("--input", default=".gateway/external_debug/codex_openai_codefix_debug.jsonl")
     p_prepare.add_argument("--out-dir", default="artifacts/openai_support_pack")
     p_prepare.add_argument("--max-incidents", type=int, default=200)
+    p_prepare.add_argument("--allow-empty-input", action="store_true")
 
     p_verify = sub.add_parser("verify", help="Verify manually filled support receipt.")
     p_verify.add_argument("--receipt", required=True)
@@ -342,11 +360,16 @@ def main_feedback(argv: list[str]) -> int:
     args = parser.parse_args(argv)
 
     if args.feedback_cmd == "prepare":
-        paths = prepare_support_pack(
-            input_log=Path(args.input).resolve(),
-            out_dir=Path(args.out_dir).resolve(),
-            max_incidents=max(1, int(args.max_incidents)),
-        )
+        try:
+            paths = prepare_support_pack(
+                input_log=Path(args.input).resolve(),
+                out_dir=Path(args.out_dir).resolve(),
+                max_incidents=max(1, int(args.max_incidents)),
+                allow_empty_input=bool(args.allow_empty_input),
+            )
+        except FileNotFoundError as exc:
+            print(f"FEEDBACK_PREPARE_FAIL {exc}")
+            return 1
         print("FEEDBACK_PREPARE_OK")
         print(f"bundle_json={paths['bundle_json']}")
         print(f"bundle_md={paths['bundle_md']}")
@@ -362,4 +385,3 @@ def main_feedback(argv: list[str]) -> int:
         return 1
     print("FEEDBACK_VERIFY_OK")
     return 0
-

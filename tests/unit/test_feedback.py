@@ -4,6 +4,8 @@ import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import pytest
+
 from codex_agent.feedback import prepare_support_pack, verify_support_receipt
 
 
@@ -45,7 +47,7 @@ def test_verify_support_receipt_happy_path(tmp_path: Path) -> None:
             "case_id": "ABC-123",
             "submitted_by": "user@example.com",
             "submitted_at_utc": submitted,
-            "attachments_included": ["OPENAI_FEEDBACK_BUNDLE.json"],
+            "attachments_included": ["OPENAI_FEEDBACK_BUNDLE.json", "OPENAI_FEEDBACK_BUNDLE.md"],
         },
         "operator_signoff": {"acknowledged": True, "notes": "ok"},
     }
@@ -72,3 +74,38 @@ def test_verify_support_receipt_fails_without_case_id(tmp_path: Path) -> None:
     path.write_text(json.dumps(receipt), encoding="utf-8")
     errors = verify_support_receipt(path, max_age_hours=100000)
     assert any("case_id" in e for e in errors)
+
+
+def test_prepare_support_pack_fails_on_missing_input_by_default(tmp_path: Path) -> None:
+    missing = tmp_path / "no-log.jsonl"
+    with pytest.raises(FileNotFoundError):
+        prepare_support_pack(missing, tmp_path / "artifacts")
+
+
+def test_prepare_support_pack_allows_missing_input_with_flag(tmp_path: Path) -> None:
+    missing = tmp_path / "no-log.jsonl"
+    out = prepare_support_pack(missing, tmp_path / "artifacts", allow_empty_input=True)
+    assert out["bundle_json"].exists()
+    bundle = json.loads(out["bundle_json"].read_text(encoding="utf-8"))
+    assert bundle["summary"]["incidents"] == 0
+
+
+def test_verify_support_receipt_requires_exact_status_and_attachments(tmp_path: Path) -> None:
+    submitted = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat().replace("+00:00", "Z")
+    receipt = {
+        "schema_version": "1.0",
+        "status": "ok",
+        "evidence": {
+            "platform": "help.openai.com",
+            "case_id": "ABC-123",
+            "submitted_by": "user@example.com",
+            "submitted_at_utc": submitted,
+            "attachments_included": ["OPENAI_FEEDBACK_BUNDLE.json"],
+        },
+        "operator_signoff": {"acknowledged": True, "notes": "ok"},
+    }
+    path = tmp_path / "receipt.json"
+    path.write_text(json.dumps(receipt), encoding="utf-8")
+    errors = verify_support_receipt(path, max_age_hours=100000)
+    assert any("status must equal MANUAL_SUBMISSION_CONFIRMED" in e for e in errors)
+    assert any("attachments_included missing required" in e for e in errors)
