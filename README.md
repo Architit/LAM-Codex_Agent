@@ -36,12 +36,26 @@ python -m codex_agent ping
 - `Core.answer("ping")` returns `{"reply": "pong"}`; other messages return
   `{"reply": "Processed: <message>"}`.
 
+## OpenAI Feedback (B1 Manual Mode)
+
+Prepare support pack from debug logs:
+
+```powershell
+lam-codex-agent feedback prepare --input .gateway/external_debug/codex_openai_codefix_debug.jsonl --out-dir artifacts/openai_support_pack
+```
+
+Verify manually filled support receipt:
+
+```powershell
+lam-codex-agent feedback verify --receipt artifacts/openai_support_pack/SUPPORT_RECEIPT.json
+```
+
 ## Dev tools
 
 ```powershell
 ruff src/
 mypy src/
-pytest tests/  # expects `lam-codex-agent` on PATH (pip install -e .)
+scripts/test_entrypoint.sh --all
 ```
 
 ## Gemini Flash Bridge (`flash_brain.py`)

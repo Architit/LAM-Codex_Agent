@@ -1,13 +1,21 @@
-import argparse
+from __future__ import annotations
+
+import sys
 
 from .core import Core
+from .feedback import main_feedback
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run the LAM Codex agent")
-    parser.add_argument("message", nargs="*", help="Message to process")
-    args = parser.parse_args()
+    # Backward-compatible behavior:
+    # `lam-codex-agent ping` still works as before.
+    argv = sys.argv[1:]
+    if not argv:
+        print(Core().answer("Codex Agent starting"))
+        return
 
-    msg = " ".join(args.message).strip() or "Codex Agent starting"
-    reply = Core().answer(msg)
-    print(reply)
+    if argv[0] == "feedback":
+        raise SystemExit(main_feedback(argv[1:]))
+
+    msg = " ".join(argv).strip() or "Codex Agent starting"
+    print(Core().answer(msg))

@@ -42,3 +42,38 @@ def test_entrypoint_smoke() -> None:
 
     assert result.returncode == 0, result.stderr
     assert "pong" in result.stdout
+
+
+def test_feedback_prepare_smoke(tmp_path: Path) -> None:
+    env = os.environ.copy()
+    existing = env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = str(SRC_DIR) + (os.pathsep + existing if existing else "")
+
+    input_log = tmp_path / "debug.jsonl"
+    input_log.write_text(
+        '{"ts_utc":"2026-02-18T00:00:00Z","level":"debug","channel":"codex.bridge.external.debug","message":"bridge.send_outbound","fields":{"ok":false,"error":"enqueue_failed","external_system":"codex_openai"}}\n',
+        encoding="utf-8",
+    )
+    out_dir = tmp_path / "pack"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "codex_agent",
+            "feedback",
+            "prepare",
+            "--input",
+            str(input_log),
+            "--out-dir",
+            str(out_dir),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert (out_dir / "OPENAI_FEEDBACK_BUNDLE.json").exists()
+    assert (out_dir / "SUPPORT_TICKET_DRAFT.md").exists()
