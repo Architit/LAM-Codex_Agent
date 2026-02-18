@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from interfaces.com_agent_interface import ComAgent
-
 
 class StubComAgent:
     def __init__(self) -> None:
@@ -24,7 +22,7 @@ class StubComAgent:
 def test_bridge_send_outbound_queue_api():
     from codex_agent.integrations.com_agent_bridge import ComAgentBridge
 
-    ca: ComAgent = StubComAgent()
+    ca = StubComAgent()
     ca.register_agent("codex", object())
 
     bridge = ComAgentBridge(ca)
