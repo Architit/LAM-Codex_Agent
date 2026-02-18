@@ -18,8 +18,10 @@ jobs:
           git submodule update --init --recursive
       - name: Verify required submodules
         run: |
+          git submodule status --recursive | tee /tmp/sub_recursive.txt
           git submodule status agents/test-agent | tee /tmp/sub_test.txt
           git submodule status agents/operator-agent | tee /tmp/sub_operator.txt
+          ! grep -qE '^-' /tmp/sub_recursive.txt
           ! grep -qE '^-' /tmp/sub_test.txt
           ! grep -qE '^-' /tmp/sub_operator.txt
       - uses: actions/setup-python@v5
