@@ -1,1 +1,3 @@
 -r reqs/requirements.txt
+openai
+google-genai

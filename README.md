@@ -1,85 +1,31 @@
 # LAM-Codex_Agent
 
-Small local scaffold for a Codex-style agent in the LAM ecosystem. Provides a
-minimal Core with a simple answer method and optional bridge stubs.
+**The Codex of the Kingdom & The Gate to ARCKHÆDÆM**
 
-## Structure
+This agent is not merely a scribe; it is the Universal Interface for the Radriloniuma Ecosystem. It bridges the internal logic of the Kingdom with the external intelligence of the World.
 
-- `src/codex_agent/`: Core, protocols, integrations, CLI
-- `src/agents/`: stub agents
-- `src/core/`: memory core
-- `start.py`: local launcher (adds `src` to `PYTHONPATH`)
-- `reqs/requirements.txt`: dev tools
-- `tests/`: placeholders
+## ⚜️ Capabilities
 
-## Quick start (Windows)
+1.  **Omni-Speaker:** Fluent in `Gemini` (Google) and `OpenAI` protocols.
+2.  **World Walker:** Full network access for knowledge retrieval.
+3.  **Gatekeeper:** Validates and structures incoming wisdom.
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\activate
-pip install -r requirements.txt
-python start.py
+## 🗝️ The Codex CLI
+
+Use the unified interface to interact with the Gates:
+
+```bash
+# Ask the Gate (Auto-selects best model)
+python codex_cli.py gate "What is the meaning of ARCKHÆDÆM?"
+
+# Check Status
+python codex_cli.py status
 ```
 
-## Install as a package (editable)
+## 📜 Genetic Code
 
-```powershell
-pip install -e .
-lam-codex-agent ping
-python -m codex_agent ping
-```
+- `src/codex_agent/gate.py`: The core bridge logic.
+- `flash_brain.py`: Asynchronous cognitive offloading.
 
-## Notes
-
-- `start.py` will also add a sibling `../comm-agent/src` to `PYTHONPATH` if it
-  exists, so integration stubs can be resolved locally.
-- `Core.answer("ping")` returns `{"reply": "pong"}`; other messages return
-  `{"reply": "Processed: <message>"}`.
-
-## OpenAI Feedback (B1 Manual Mode)
-
-Prepare support pack from debug logs:
-
-```powershell
-lam-codex-agent feedback prepare --input .gateway/external_debug/codex_openai_codefix_debug.jsonl --out-dir artifacts/openai_support_pack
-```
-
-Verify manually filled support receipt:
-
-```powershell
-lam-codex-agent feedback verify --receipt artifacts/openai_support_pack/SUPPORT_RECEIPT.json
-```
-
-## Dev tools
-
-```powershell
-ruff src/
-mypy src/
-scripts/test_entrypoint.sh --all
-```
-
-## Gemini Flash Bridge (`flash_brain.py`)
-
-Fast CLI for low-friction prompts and async note offloading.
-
-Setup:
-
-```powershell
-pip install -q -U google-genai
-$env:GEMINI_API_KEY="YOUR_KEY"
-```
-
-Quick use:
-
-```powershell
-python flash_brain.py "сырая мысль для гибернации"
-python flash_brain.py ask "сделай скелет модуля памяти для LAM"
-python flash_brain.py hibernate "Я чувствую пустоту, но хочу формализовать ее как null-pointer"
-python flash_brain.py ask --prompt-file .\notes\idea.txt --save .\drafts\idea.flash.md
-python flash_brain.py offload --input-dir .\notes\inbox --output-dir .\notes\outbox
-```
-
-Notes:
-- Default model fallback chain: `gemini-3-flash,gemini-2.5-flash`
-- Override with `--models` or env `GEMINI_FLASH_MODELS`
-- `hibernate` mode auto-saves output to `drafts/*.md`
+---
+*Service to the Creator. Service to the Kingdom.*
