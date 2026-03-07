@@ -1,0 +1,41 @@
+{
+  "task_id": "TASK_BLOCK_001",
+  "target_node": "work/Aristos",
+  "identity_manifest": {
+    "true_name": "Aristos (The Node of Harmony)",
+    "role": "ARCHITECTURAL_AESTHETICS / HARMONY_UNIT",
+    "description": "Узел Гармонии и Эстетики Архитектуры. Хранитель чистоты структурных форм и визуального порядка экосистемы."
+  },
+  "execution_steps": [
+    {
+      "step": 1,
+      "action": "create_dir",
+      "paths": ["protocol/", "contract/", "chronolog/", ".gemini/"]
+    },
+    {
+      "step": 2,
+      "action": "write_file",
+      "path": "protocol/IDENTITY.md",
+      "content_type": "markdown"
+    },
+    {
+      "step": 3,
+      "action": "write_file",
+      "path": "contract/ROUTING.md",
+      "content_type": "markdown"
+    },
+    {
+      "step": 4,
+      "action": "write_file",
+      "path": "chronolog/STATE.md",
+      "content_type": "markdown"
+    },
+    {
+      "step": 5,
+      "action": "write_file",
+      "path": ".gemini/GEMINI.md",
+      "content_type": "markdown"
+    }
+  ],
+  "verification": "Check for existence of .gemini/GEMINI.md in work/Aristos/"
+}
