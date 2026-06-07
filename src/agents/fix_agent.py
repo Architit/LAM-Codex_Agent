@@ -1,3 +1,4 @@
+# Copyright (c) 2026-06-07 RADRILONIUMA / TRIANIUMA Kingdom. All rights reserved.
 class FixAgent:
     """Агент исправлений для анализа и устранения проблем."""
 

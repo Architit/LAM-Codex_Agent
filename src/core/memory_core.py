@@ -1,3 +1,4 @@
+# Copyright (c) 2026-06-07 RADRILONIUMA / TRIANIUMA Kingdom. All rights reserved.
 import json
 from typing import Dict, Any, List, Optional
 from datetime import datetime
