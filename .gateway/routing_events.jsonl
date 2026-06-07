@@ -1,2 +1,4 @@
 {"ts_utc": "2026-06-07T05:52:17Z", "event": "breaker_reset", "provider": "local"}
 {"ts_utc": "2026-06-07T05:52:17Z", "event": "breaker_failure", "provider": "local", "reason": "source not found: /tmp/pytest-of-architit/pytest-3/test_queue_retry_backoff_marks0/missing.txt", "state": {"consecutive_failures": 1, "open_until_epoch": 0}}
+{"ts_utc": "2026-06-07T06:16:59Z", "event": "breaker_reset", "provider": "local"}
+{"ts_utc": "2026-06-07T06:16:59Z", "event": "breaker_failure", "provider": "local", "reason": "source not found: /tmp/pytest-of-architit/pytest-18/test_queue_retry_backoff_marks0/missing.txt", "state": {"consecutive_failures": 1, "open_until_epoch": 0}}

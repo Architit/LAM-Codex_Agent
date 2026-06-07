@@ -34,7 +34,7 @@ class CodexGate:
             self._openai_client = OpenAI(api_key=self.openai_key)
         return self._openai_client
 
-    def ask(self, prompt: str, model_hint: str = "auto", sys_prompt: str = "You are the Codex.") -> str:
+    def ask(self, prompt: str, model_hint: str = "auto", sys_prompt: str = "You are the Codex.", temperature: float = 0.2, max_tokens: int = 2048) -> str:
         """
         Universal query method.
         model_hint: 'gemini', 'openai', 'auto', or specific model name.
@@ -50,30 +50,30 @@ class CodexGate:
                 return "Error: No API keys found. The Gate is closed."
 
         if "gemini" in model_hint or "flash" in model_hint:
-            return self._ask_gemini(prompt, sys_prompt, model=model_hint if "gemini" not in model_hint else "gemini-2.0-flash")
+            return self._ask_gemini(prompt, sys_prompt, model=model_hint if "gemini" not in model_hint else "gemini-2.0-flash", temperature=temperature, max_tokens=max_tokens)
         
         if "openai" in model_hint or "gpt" in model_hint:
-            return self._ask_openai(prompt, sys_prompt, model=model_hint if "openai" not in model_hint else "gpt-4o")
+            return self._ask_openai(prompt, sys_prompt, model=model_hint if "openai" not in model_hint else "gpt-4o", temperature=temperature, max_tokens=max_tokens)
 
         return f"Error: Unknown model hint '{model_hint}'."
 
-    def _ask_gemini(self, prompt: str, sys_prompt: str, model: str) -> str:
+    def _ask_gemini(self, prompt: str, sys_prompt: str, model: str, temperature: float, max_tokens: int) -> str:
         client = self._get_google_client()
         try:
             response = client.models.generate_content(
-                model=model,
+                model=model, temperature=temperature, max_tokens=max_tokens,
                 contents=prompt,
-                config={"system_instruction": sys_prompt}
+                config={"system_instruction": sys_prompt, "temperature": temperature, "max_output_tokens": max_tokens}
             )
             return response.text if response.text else "Error: Empty response from Gemini."
         except Exception as e:
             return f"Gemini Error: {e}"
 
-    def _ask_openai(self, prompt: str, sys_prompt: str, model: str) -> str:
+    def _ask_openai(self, prompt: str, sys_prompt: str, model: str, temperature: float, max_tokens: int) -> str:
         client = self._get_openai_client()
         try:
             response = client.chat.completions.create(
-                model=model,
+                model=model, temperature=temperature, max_tokens=max_tokens,
                 messages=[
                     {"role": "system", "content": sys_prompt},
                     {"role": "user", "content": prompt}

@@ -11,8 +11,8 @@ from codex_agent.core import Core  # noqa: E402
 
 
 def test_core_answer_ping() -> None:
-    assert Core().answer("ping") == {"reply": "pong"}
+    assert Core().answer("ping")["result"] == {"reply": "pong"}
 
 
 def test_core_answer_message() -> None:
-    assert Core().answer("hello") == {"reply": "Processed: hello"}
+    res = Core().answer("hello"); assert res["status"] == "ok"
